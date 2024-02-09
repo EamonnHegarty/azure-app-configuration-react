@@ -3,6 +3,7 @@ import "./App.css";
 import axios from "axios";
 
 const isLocal = import.meta.env.VITE_APP_ENV === "local";
+const tenant = import.meta.env.VITE_TENANT;
 
 type FeatureFlag = {
   enabledHeader: boolean;
@@ -22,12 +23,11 @@ function App() {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlagResponse[]>([]);
   const [enabledHeader, setEnabledHeader] = useState(false);
   const [enabledFooter, setEnabledFooter] = useState(false);
-  const tenant = import.meta.env.VITE_TENANT;
 
   const fetchFeatureFlags = () => {
     axios
       .post(`${api}/feature-flags`, {
-        tenant: tenant,
+        tenant: tenant ? tenant : "EU",
       })
       .then((response) => {
         setFeatureFlags(response.data);
