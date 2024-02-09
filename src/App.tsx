@@ -60,6 +60,7 @@ function App() {
       >
         Log Data
       </button>
+      <button onClick={() => console.log([tenant, isLocal])}>Check env</button>
       {enabledFooter && <h1 style={{ marginTop: 10 }}>The Footer</h1>}
     </>
   );
