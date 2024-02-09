@@ -22,10 +22,13 @@ function App() {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlagResponse[]>([]);
   const [enabledHeader, setEnabledHeader] = useState(false);
   const [enabledFooter, setEnabledFooter] = useState(false);
+  const tenant = import.meta.env.VITE_TENANT;
 
   const fetchFeatureFlags = () => {
     axios
-      .get(`${api}/feature-flags`)
+      .post(`${api}/feature-flags`, {
+        tenant: tenant,
+      })
       .then((response) => {
         setFeatureFlags(response.data);
       })
@@ -36,6 +39,7 @@ function App() {
 
   useEffect(() => {
     fetchFeatureFlags();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
