@@ -27,7 +27,7 @@ function App() {
   const fetchFeatureFlags = () => {
     axios
       .post(`${api}/feature-flags`, {
-        tenant: tenant ? tenant : "EU",
+        tenant: tenant,
       })
       .then((response) => {
         setFeatureFlags(response.data);
