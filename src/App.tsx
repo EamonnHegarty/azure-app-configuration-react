@@ -3,7 +3,6 @@ import "./App.css";
 import axios from "axios";
 
 const isLocal = import.meta.env.VITE_APP_ENV === "local";
-const tenant = import.meta.env.VITE_TENANT;
 
 type FeatureFlag = {
   enabledHeader: boolean;
@@ -27,7 +26,7 @@ function App() {
   const fetchFeatureFlags = () => {
     axios
       .post(`${api}/feature-flags`, {
-        tenant: tenant,
+        tenant: "EU",
       })
       .then((response) => {
         setFeatureFlags(response.data);
@@ -60,7 +59,6 @@ function App() {
       >
         Log Data
       </button>
-      <button onClick={() => console.log([tenant, isLocal])}>Check env</button>
       {enabledFooter && <h1 style={{ marginTop: 10 }}>The Footer</h1>}
     </>
   );
