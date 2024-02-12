@@ -19,7 +19,7 @@ type ApiResponse = {
 
 const isLocal = import.meta.env.VITE_APP_ENV === "local";
 
-const cosmoDBApi = isLocal
+const api = isLocal
   ? "http://localhost:8080"
   : "https://azure-feature-flags-api.azurewebsites.net";
 
@@ -29,11 +29,17 @@ function App() {
     enabledFooter: false,
   });
 
-  const [configurations, setConfigurations] = useState<Configuration>();
+  const [appConfigFlags, setAppConfigFlags] = useState({
+    enabledHeader: false,
+    enabledFooter: false,
+  });
 
-  const fetchCosmoDBFeatureFlags = () => {
+  const [configurations, setConfigurations] = useState<Configuration>();
+  const [appConfigurations, setAppConfigurations] = useState([]);
+
+  const fetchCosmosDBConfig = () => {
     axios
-      .post<ApiResponse>(`${cosmoDBApi}/config-cosmos`, {
+      .post<ApiResponse>(`${api}/config-cosmos`, {
         tenant: "EU",
       })
       .then((response) => {
@@ -46,8 +52,44 @@ function App() {
       });
   };
 
+  const fetchAzureAppConfig = () => {
+    axios
+      .get(`${api}/config-app-config`)
+      .then((response) => {
+        const featureFlags = response?.data?.featureFlags;
+        setAppConfigurations(response?.data);
+        const flags = {
+          enabledHeader: false,
+          enabledFooter: false,
+        };
+
+        featureFlags?.forEach(
+          (flag: { key: string; value: { enabled: unknown } }) => {
+            if (
+              flag.key === ".appconfig.featureflag/enabledHeader" &&
+              flag.value.enabled
+            ) {
+              flags.enabledHeader = true;
+            }
+            if (
+              flag.key === ".appconfig.featureflag/enabledFooter" &&
+              flag.value.enabled
+            ) {
+              flags.enabledFooter = true;
+            }
+          }
+        );
+
+        setAppConfigFlags(flags);
+      })
+      .catch((error) => {
+        console.error("error azure app config", error);
+      });
+  };
+
   useEffect(() => {
-    fetchCosmoDBFeatureFlags();
+    fetchCosmosDBConfig();
+    fetchAzureAppConfig();
   }, []);
 
   return (
@@ -63,7 +105,11 @@ function App() {
         </div>
         <div className="divItem">
           <h1>App Config Implementation</h1>
-          <button onClick={() => azureAppConfig()}>Azure App config</button>
+          {appConfigFlags.enabledHeader && <h1>The Header</h1>}
+          <button onClick={() => console.log(appConfigurations)}>
+            Azure App config
+          </button>
+          {appConfigFlags.enabledFooter && <h1>The Footer</h1>}
         </div>
       </div>
     </>
