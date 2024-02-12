@@ -3,34 +3,43 @@ import "./App.css";
 import axios from "axios";
 import { azureAppConfig } from "./azureConfigFetcher.ts";
 
-const isLocal = import.meta.env.VITE_APP_ENV === "local";
-
 type FeatureFlag = {
   enabledHeader: boolean;
   enabledFooter: boolean;
 };
 
-type FeatureFlagResponse = {
-  id: string;
-  flags: FeatureFlag;
+type Configuration = {
+  configurations: [];
 };
 
-const api = isLocal
+type ApiResponse = {
+  flags: FeatureFlag;
+  configuration: Configuration;
+};
+
+const isLocal = import.meta.env.VITE_APP_ENV === "local";
+
+const cosmoDBApi = isLocal
   ? "http://localhost:8080"
   : "https://azure-feature-flags-api.azurewebsites.net";
 
 function App() {
-  const [featureFlags, setFeatureFlags] = useState<FeatureFlagResponse[]>([]);
-  const [enabledCosmoHeader, setenabledCosmoHeader] = useState(false);
-  const [enabledCosmoFooter, setenabledCosmoFooter] = useState(false);
+  const [flags, setFlags] = useState<FeatureFlag>({
+    enabledHeader: false,
+    enabledFooter: false,
+  });
+
+  const [configurations, setConfigurations] = useState<Configuration>();
 
   const fetchCosmoDBFeatureFlags = () => {
     axios
-      .post(`${api}/feature-flags`, {
+      .post<ApiResponse>(`${cosmoDBApi}/config-cosmos`, {
         tenant: "EU",
       })
       .then((response) => {
-        setFeatureFlags(response.data);
+        const { flags, configuration } = response.data;
+        setFlags(flags);
+        setConfigurations({ configurations: configuration as unknown as [] });
       })
       .catch((error) => {
         console.error("Error fetching feature flags:", error);
@@ -39,35 +48,18 @@ function App() {
 
   useEffect(() => {
     fetchCosmoDBFeatureFlags();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (featureFlags.length > 0) {
-      const { flags } = featureFlags[0];
-      setenabledCosmoHeader(flags.enabledHeader);
-      setenabledCosmoFooter(flags.enabledFooter);
-    }
-  }, [featureFlags]);
 
   return (
     <>
       <div className="container">
         <div className="divItem">
           <h1>CosmoDB Implementation</h1>
-          {enabledCosmoHeader && <h1>The Header</h1>}
-          <button
-            onClick={() =>
-              console.log([
-                featureFlags,
-                enabledCosmoHeader,
-                enabledCosmoFooter,
-              ])
-            }
-          >
-            Log Data (eventually config)
+          {flags.enabledHeader && <h1>The Header</h1>}
+          <button onClick={() => console.log([flags, configurations])}>
+            Log Data
           </button>
-          {enabledCosmoFooter && <h1 style={{ marginTop: 10 }}>The Footer</h1>}
+          {flags.enabledFooter && <h1 style={{ marginTop: 10 }}>The Footer</h1>}
         </div>
         <div className="divItem">
           <h1>App Config Implementation</h1>
