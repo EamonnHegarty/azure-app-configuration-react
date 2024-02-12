@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
-import { azureAppConfig } from "./azureConfigFetcher";
+import { azureAppConfig } from "./azureConfigFetcher.ts";
 
 const isLocal = import.meta.env.VITE_APP_ENV === "local";
 
