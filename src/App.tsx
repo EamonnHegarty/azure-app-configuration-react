@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
-import { azureAppConfig } from "./azureConfigFetcher.ts";
 
 type FeatureFlag = {
   enabledHeader: boolean;
