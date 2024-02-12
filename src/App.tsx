@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
+import { azureAppConfig } from "./azureConfigFetcher";
 
 const isLocal = import.meta.env.VITE_APP_ENV === "local";
 
@@ -20,10 +21,10 @@ const api = isLocal
 
 function App() {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlagResponse[]>([]);
-  const [enabledHeader, setEnabledHeader] = useState(false);
-  const [enabledFooter, setEnabledFooter] = useState(false);
+  const [enabledCosmoHeader, setenabledCosmoHeader] = useState(false);
+  const [enabledCosmoFooter, setenabledCosmoFooter] = useState(false);
 
-  const fetchFeatureFlags = () => {
+  const fetchCosmoDBFeatureFlags = () => {
     axios
       .post(`${api}/feature-flags`, {
         tenant: "EU",
@@ -37,29 +38,42 @@ function App() {
   };
 
   useEffect(() => {
-    fetchFeatureFlags();
+    fetchCosmoDBFeatureFlags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (featureFlags.length > 0) {
       const { flags } = featureFlags[0];
-      setEnabledHeader(flags.enabledHeader);
-      setEnabledFooter(flags.enabledFooter);
+      setenabledCosmoHeader(flags.enabledHeader);
+      setenabledCosmoFooter(flags.enabledFooter);
     }
   }, [featureFlags]);
 
   return (
     <>
-      {enabledHeader && <h1>The Header</h1>}
-      <button
-        onClick={() =>
-          console.log([featureFlags, enabledHeader, enabledFooter])
-        }
-      >
-        Log Data
-      </button>
-      {enabledFooter && <h1 style={{ marginTop: 10 }}>The Footer</h1>}
+      <div className="container">
+        <div className="divItem">
+          <h1>CosmoDB Implementation</h1>
+          {enabledCosmoHeader && <h1>The Header</h1>}
+          <button
+            onClick={() =>
+              console.log([
+                featureFlags,
+                enabledCosmoHeader,
+                enabledCosmoFooter,
+              ])
+            }
+          >
+            Log Data (eventually config)
+          </button>
+          {enabledCosmoFooter && <h1 style={{ marginTop: 10 }}>The Footer</h1>}
+        </div>
+        <div className="divItem">
+          <h1>App Config Implementation</h1>
+          <button onClick={() => azureAppConfig()}>Azure App config</button>
+        </div>
+      </div>
     </>
   );
 }
