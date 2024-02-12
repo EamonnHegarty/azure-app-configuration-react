@@ -26,6 +26,7 @@ jobs:
         env:
           VITE_APP_ENV: ${{ secrets.VITE_APP_ENV }} 
           VITE_TENANT: ${{ secrets.VITE_TENANT }} 
+          VITE_APP_CONFIG_CONNECTION_STRING: ${{secrets.VITE_APP_CONFIG_CONNECTION_STRING}}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
